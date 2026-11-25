@@ -19,8 +19,10 @@ let angle a = atan2 a.y a.x
 (*            avion              *)
 (*********************************)
 
-(*speed en noeuds, cap en degrés, target en coordonnées cartésiennes, pos en coordonnées cartésiennes *)
-type avion ={id:int; mutable speed:float; mutable cap: float; mutable target: vec; mutable pos: vec}
+(*speed en noeuds, cap en radians, target en coordonnées cartésiennes, pos en coordonnées cartésiennes *)
+type avion ={mutable id:int; mutable speed:float; mutable cap: float; mutable target: vec; mutable pos: vec}
+
+let avion_vide = {id=-1; speed=0.; cap=0.; target={x=0.; y=0.}; pos={x=0.; y=0.}}
 
 let separation = 5.                  (* norme de separation horizontale (NM) *)
 let taux_virage = 3. *. pi /. 180.   (* virage au taux standard : 3 deg/s *)
@@ -54,5 +56,5 @@ let turn avion dt new_cap =
 
 let advance avion dt =
   let nr = kt*.avion.speed *. dt in 
-  let dvec = { x = nr *. cos avion.cap; y = nr *. sin avion.cap } in
+  let dvec = polaire nr avion.cap in
   avion.pos <- avion.pos +| dvec

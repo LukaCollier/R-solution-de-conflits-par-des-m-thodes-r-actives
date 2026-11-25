@@ -1,5 +1,5 @@
 open Io
-
+(*dt base 1 sec*)
 let () =
   open_window ();
   (* 1. ecran de configuration : nombre max d'avions et rayon du secteur *)

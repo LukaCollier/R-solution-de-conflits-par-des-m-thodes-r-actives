@@ -1,6 +1,7 @@
 open Graphics
+open Avions
 
-(* Compilation : ocamlfind ocamlopt -package graphics -linkpkg io.ml main.ml -o simu *)
+(* Compilation : ocamlfind ocamlopt -package graphics,unix -linkpkg avions.ml io.ml traffic.ml main.ml -o simu *)
 
 (*********)
 (* Types *)
@@ -114,13 +115,17 @@ let settings_screen () : settings =
 (* Affichage du secteur (vide)   *)
 (*********************************)
 
-let display_sector (s : settings) : unit =
+(* Dessine le secteur sans synchroniser : les avions sont dessines par-dessus *)
+let draw_sector (s : settings) : unit =
   clear_graph ();
   set_color grey; fill_circle cx cy r_px;
   set_color black; draw_circle cx cy r_px;
   moveto 700 600; draw_string (Printf.sprintf "Rayon du secteur : %.0f NM" s.radius);
   moveto 700 570; draw_string (Printf.sprintf "Avions max : %d" s.max_planes);
-  moveto 700 100; draw_string "Touche q : quitter";
+  moveto 700 100; draw_string "Touche q : quitter"
+
+let display_sector (s : settings) : unit =
+  draw_sector s;
   synchronize ()
 
 
@@ -138,3 +143,32 @@ let quit_requested () : bool =
 (*********************************)
 (* Affichage avion               *)
 (*********************************)
+
+(* NM (repere centre sur le secteur) -> pixels *)
+let px_of_nm (s : settings) (v : vec) : int * int =
+  let k = float r_px /. s.radius in
+  (cx + int_of_float (Float.round (v.x *. k)),
+   cy + int_of_float (Float.round (v.y *. k)))
+
+(* Un avion : un point rouge, un trait dans le sens du cap, son numero *)
+let draw_plane (s : settings) (a : avion) : unit =
+  if a.id <> -1 then begin
+    let (px, py) = px_of_nm s a.pos in
+    set_color red;
+    fill_circle px py 3;
+    moveto px py;
+    lineto (px + int_of_float (12. *. cos a.cap))
+           (py + int_of_float (12. *. sin a.cap));
+    set_color black;
+    moveto (px + 5) (py + 5);
+    draw_string (string_of_int a.id)
+  end
+
+(* Secteur + tous les avions + nombre d'avions presents, puis synchronize *)
+let display_traffic (s : settings) (avions : avion array) (nb : int) (t : float) : unit =
+  draw_sector s;
+  Array.iter (draw_plane s) avions;
+  set_color black;
+  moveto 700 540;
+  draw_string (Printf.sprintf "t = %.0f s   avions presents : %d" t nb);
+  synchronize ()

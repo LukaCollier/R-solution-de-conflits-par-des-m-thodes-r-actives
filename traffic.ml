@@ -67,6 +67,20 @@ let generate_traffic (t :traffic) dt = (*génération du trafic suivant le proce
   for _ = 1 to n do
     generate_plane t
   done
+
+
+let a_quitte_secteur (t : traffic) a =
+  norme a.pos >= t.rayon && dot a.pos (polaire 1. a.cap) > 0.
+
+let step_traffic (t : traffic) dt =
+  Array.iter (fun a -> if a.id <> -1 then advance a dt) t.avions;
+  Array.iteri (fun i a ->
+    if a.id <> -1 && a_quitte_secteur t a then begin
+      t.avions.(i) <- avion_vide;
+      t.nb_avions <- t.nb_avions - 1
+    end) t.avions;
+  generate_traffic t dt
+ 
 (*algorithme détection de conflits*)
 
 (*Algorithme d'évitement de collision*)

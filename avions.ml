@@ -22,7 +22,7 @@ let angle a = atan2 a.y a.x
 (*speed en noeuds, cap en radians, target en coordonnées cartésiennes, pos en coordonnées cartésiennes *)
 type avion ={mutable id:int; mutable speed:float; mutable cap: float; mutable target: vec; mutable pos: vec}
 
-let avion_vide = {id=-1; speed=0.; cap=0.; target={x=0.; y=0.}; pos={x=0.; y=0.}}
+let avion_vide = {id= -1; speed=0.; cap=0.; target={x=0.; y=0.}; pos={x=0.; y=0.}}
 
 let separation = 5.                  (* norme de separation horizontale (NM) *)
 let taux_virage = 3. *. pi /. 180.   (* virage au taux standard : 3 deg/s *)
